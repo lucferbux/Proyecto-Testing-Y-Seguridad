@@ -123,6 +123,28 @@ describe('auth.ts - Utilidades de autenticación', () => {
       expect(localStorage.getItem(tokenKey)).toBeNull();
       expect(isTokenActive()).toBe(false);
     });
+
+    it('debe retornar true cuando el token está en el límite de expiración', () => {
+      const now = Date.now();
+      localStorage.setItem(tokenKey, JSON.stringify({
+        accessToken: 'about-to-expire',
+        notBeforeTimestampInMillis: now - 3600000, // Comenzó hace 1 hora
+        expirationTimestampInMillis: now + 1000, // Expira en 1 segundo
+      }));
+
+      expect(isTokenActive()).toBe(true);
+    });
+
+    it('debe retornar true cuando el token acaba de activarse', () => {
+      const now = Date.now();
+      localStorage.setItem(tokenKey, JSON.stringify({
+        accessToken: 'just-activated',
+        notBeforeTimestampInMillis: now - 1000, // Activado hace 1 segundo
+        expirationTimestampInMillis: now + 3600000, // Expira en 1 hora
+      }));
+
+      expect(isTokenActive()).toBe(true);
+    });
   });
 
   describe('getAccessToken', () => {
@@ -227,5 +249,47 @@ describe('auth.ts - Utilidades de autenticación', () => {
       expect(getAccessToken()).toBe('');
       expect(getCurrentUser()).toBeUndefined();
     });
+  });
+});
+
+
+describe('setAuthToken con spy', () => {
+  let decodeSpy: jest.SpyInstance;
+  let localStorageMock: { [key: string]: string };
+
+  beforeEach(() => {
+    // Limpiar localStorage y mocks
+    localStorage.clear();
+    jest.clearAllMocks();
+    
+    // Spy en jwt_decode - podemos verificar llamadas Y ejecutar código real
+    decodeSpy = jest.spyOn({ jwt_decode }, 'jwt_decode');
+    
+    // Mock de localStorage (sí necesita ser mockeado)
+    localStorageMock = {};
+    Storage.prototype.setItem = jest.fn((key, value) => {
+      localStorageMock[key] = value;
+    });
+  });
+
+  afterEach(() => {
+    decodeSpy.mockRestore();
+  });
+
+  it('debe llamar jwt_decode con el token', () => {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiIxMjMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJpYXQiOjE2MDk0NTkyMDAsImV4cCI6MTYwOTU0NTYwMH0.abc';
+    
+    // Limpiar el spy antes de la llamada para contar solo esta ejecución
+    decodeSpy.mockClear();
+    
+    setAuthToken(token);
+    
+    // Verificar que jwt_decode se llamó con el token
+    expect(decodeSpy).toHaveBeenCalledWith(token);
+    expect(decodeSpy).toHaveBeenCalledTimes(1);
+    
+    // El spy ejecutó código real, así que localStorage tiene datos válidos
+    const savedValue = localStorageMock[tokenKey];
+    expect(savedValue).toBeDefined();
   });
 });
