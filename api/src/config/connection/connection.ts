@@ -2,24 +2,9 @@ import mongoose from 'mongoose';
 import config from '@/config/env/index';
 import Logger from '@/utils/Logger';
 
-interface IConnectOptions {
-  loggerLevel?: string;
-  useNewUrlParser?: boolean;
-  useUnifiedTopology: boolean;
-  useCreateIndex: boolean;
-}
-
-const connectOptions: IConnectOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true
-};
-
 const MONGO_URI = `${config.database.MONGODB_URI}${config.database.MONGODB_DB_MAIN}`;
 
-mongoose.set('useFindAndModify', false);
-
-export const db: mongoose.Connection = mongoose.createConnection(MONGO_URI, connectOptions);
+export const db: mongoose.Connection = mongoose.createConnection(MONGO_URI);
 
 // handlers
 db.on('connecting', () => {
