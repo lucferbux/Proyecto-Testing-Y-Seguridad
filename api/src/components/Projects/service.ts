@@ -40,7 +40,7 @@ const ProjectsService: IProjectsService = {
 
       return await ProjectModel.findOne(
         {
-          _id: Types.ObjectId(id)
+          _id: new Types.ObjectId(id)
         },
         {
           password: 0
@@ -90,7 +90,7 @@ const ProjectsService: IProjectsService = {
       }
 
       const project: IProjectsModel = await ProjectModel.findOneAndRemove({
-        _id: Types.ObjectId(id)
+        _id: new Types.ObjectId(id)
       });
 
       return project;

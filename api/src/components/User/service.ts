@@ -40,7 +40,7 @@ const UserService: IUserService = {
 
       return await UserModel.findOne(
         {
-          _id: Types.ObjectId(id)
+          _id: new Types.ObjectId(id)
         },
         {
           password: 0
@@ -90,7 +90,7 @@ const UserService: IUserService = {
       }
 
       const user: IUserModel = await UserModel.findOneAndRemove({
-        _id: Types.ObjectId(id)
+        _id: new Types.ObjectId(id)
       });
 
       return user;

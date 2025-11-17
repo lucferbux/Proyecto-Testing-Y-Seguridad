@@ -45,7 +45,7 @@ const AboutMeService: IAboutMeService = {
 
       return await AboutMeModel.findOne(
         {
-          _id: Types.ObjectId(id)
+          _id: new Types.ObjectId(id)
         },
         {
           password: 0
@@ -95,7 +95,7 @@ const AboutMeService: IAboutMeService = {
       }
 
       const user: IAboutMeModel = await AboutMeModel.findOneAndRemove({
-        _id: Types.ObjectId(id)
+        _id: new Types.ObjectId(id)
       });
 
       return user;
