@@ -15,7 +15,6 @@ class UserValidation extends Validation {
    */
   createUser(params: IUserModel): Joi.ValidationResult<IUserModel> {
     const schema: Joi.ObjectSchema = Joi.object().keys({
-      name: Joi.string().required(),
       password: Joi.string().required(),
       email: Joi.string()
         .email({

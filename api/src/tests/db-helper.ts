@@ -14,7 +14,7 @@ export const clearDatabase = async () => {
 /**
  * Crea usuarios de prueba
  */
-export async function seedUsers(users: Array<{ name: string; email: string; password: string }>) {
+export async function seedUsers(users: Array<{ email: string; password: string }>) {
   const createdUsers = [];
   
   for (const user of users) {
