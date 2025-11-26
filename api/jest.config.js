@@ -6,6 +6,9 @@ module.exports = {
   globalSetup: './src/tests/setup.ts',
   globalTeardown: './src/tests/teardown.ts',
   
+  // Run tests sequentially to avoid shared DB conflicts
+  maxWorkers: 1,
+  
   // Coverage
   collectCoverageFrom: [
     'src/**/*.ts',

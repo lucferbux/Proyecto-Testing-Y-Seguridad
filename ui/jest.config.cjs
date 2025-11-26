@@ -20,6 +20,11 @@ module.exports = {
     ],
   },
   
+  // Transformar módulos ESM de node_modules que MSW necesita
+  transformIgnorePatterns: [
+    '/node_modules/(?!(msw|@mswjs|until-async|@bundled-es-modules|outvariant|strict-event-emitter|cookie|@open-draft)/)',
+  ],
+  
   // Paths de módulos - Mapear imports de Vite
   moduleNameMapper: {
     // CSS Modules y estilos
