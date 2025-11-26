@@ -49,7 +49,7 @@ interface CustomResponse extends express.Response {
  * @param {express.Application} app
  */
 export function initErrorHandler(app: express.Application): void {
-  app.use((error: Error, req: express.Request, res: CustomResponse) => {
+  app.use((error: Error, req: express.Request, res: CustomResponse, next: express.NextFunction) => {
     if (typeof error === 'number') {
       error = new HttpError(error); // next(404)
     }
@@ -66,6 +66,8 @@ export function initErrorHandler(app: express.Application): void {
       }
     }
 
-    Logger.error(error);
+    if (process.env.NODE_ENV !== 'test') {
+      Logger.error(error);
+    }
   });
 }

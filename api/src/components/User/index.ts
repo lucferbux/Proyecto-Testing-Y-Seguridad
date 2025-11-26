@@ -1,5 +1,4 @@
 import UserService from './service';
-import { HttpError } from '@/config/error';
 import { IUserModel } from './model';
 import { NextFunction, Request, Response } from 'express';
 
@@ -16,7 +15,7 @@ export async function findAll(req: Request, res: Response, next: NextFunction): 
 
     res.status(200).json(users);
   } catch (error) {
-    next(new HttpError(error.message.status, error.message));
+    next(error);
   }
 }
 
@@ -33,7 +32,7 @@ export async function findOne(req: Request, res: Response, next: NextFunction): 
 
     res.status(200).json(user);
   } catch (error) {
-    next(new HttpError(error.message.status, error.message));
+    next(error);
   }
 }
 
@@ -50,7 +49,7 @@ export async function create(req: Request, res: Response, next: NextFunction): P
 
     res.status(201).json(user);
   } catch (error) {
-    next(new HttpError(error.message.status, error.message));
+    next(error);
   }
 }
 
@@ -67,6 +66,6 @@ export async function remove(req: Request, res: Response, next: NextFunction): P
 
     res.status(200).json(user);
   } catch (error) {
-    next(new HttpError(error.message.status, error.message));
+    next(error);
   }
 }
