@@ -1,29 +1,34 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
 
-// Mock de la conexión a base de datos para usar la conexión por defecto de Mongoose
-// que se conecta al MongoMemoryServer en beforeAll
-jest.mock('../config/connection/connection', () => {
-  const mongoose = require('mongoose');
-  return {
-    db: mongoose.connection,
-  };
-});
-
-// Mock del middleware de autenticación para saltar la verificación de token
-jest.mock('../config/middleware/jwtAuth', () => ({
-  isAuthenticated: (req: any, res: any, next: any) => next(),
-}));
-
-import app from '../config/server/server';
-import { clearDatabase, seedUsers } from './db-helper';
-
 describe('User API Integration Tests', () => {
+  let app: any;
+  let clearDatabase: any;
+  let seedUsers: any;
+  let dbConnection: any;
 
   // Setup antes de todos los tests
   beforeAll(async () => {
-    // Conectar a MongoDB Memory Server
-    await mongoose.connect(process.env.MONGO_URI!);
+    // Configurar variables de entorno para que la app use la base de datos en memoria
+    process.env.MONGODB_URI = process.env.MONGO_URI!;
+    process.env.MONGODB_DB_MAIN = '';
+
+    // Resetear módulos para recargar la configuración con las nuevas variables de entorno
+    jest.resetModules();
+
+    // Mock auth middleware to bypass authentication
+    jest.doMock('../../config/middleware/jwtAuth', () => ({
+      isAuthenticated: (req: any, res: any, next: any) => next(),
+    }));
+
+    // Importar app y helpers dinámicamente
+    app = require('../../config/server/server').default;
+    const dbHelper = require('../../tests/db-helper');
+    clearDatabase = dbHelper.clearDatabase;
+    seedUsers = dbHelper.seedUsers;
+    
+    // Obtener la conexión de la base de datos para cerrarla después
+    dbConnection = require('../../config/connection/connection').db;
   });
 
   // Limpiar base de datos antes de cada test
@@ -33,6 +38,9 @@ describe('User API Integration Tests', () => {
 
   // Cerrar conexión después de todos los tests
   afterAll(async () => {
+    if (dbConnection) {
+      await dbConnection.close();
+    }
     await mongoose.connection.close();
   });
 
@@ -42,12 +50,12 @@ describe('User API Integration Tests', () => {
     it('debe retornar array vacío inicialmente', async () => {
       const response = await request(app)
         .get('/v1/users')
+        .set('Accept', 'application/json')
         .expect(200);
 
       expect(response.body).toEqual([]);
       expect(Array.isArray(response.body)).toBe(true);
     });
-
 
     it('debe retornar todos los usuarios', async () => {
       // Arrange: crear usuarios de prueba en MongoDB
@@ -59,6 +67,7 @@ describe('User API Integration Tests', () => {
       // Act: obtener todos los usuarios
       const response = await request(app)
         .get('/v1/users')
+        .set('Accept', 'application/json')
         .expect(200);
 
       // Assert
@@ -77,6 +86,7 @@ describe('User API Integration Tests', () => {
 
       const response = await request(app)
         .get('/v1/users')
+        .set('Accept', 'application/json')
         .expect(200);
 
       // Mongoose retorna _id como ObjectId
@@ -100,6 +110,7 @@ describe('User API Integration Tests', () => {
       // Obtener por ID
       const response = await request(app)
         .get(`/v1/users/${user._id}`)
+        .set('Accept', 'application/json')
         .expect(200);
 
       expect(response.body._id).toBe(user._id.toString());
@@ -109,9 +120,10 @@ describe('User API Integration Tests', () => {
     it('debe retornar 400 con ID inválido de MongoDB', async () => {
       const response = await request(app)
         .get('/v1/users/invalid-id')
+        .set('Accept', 'application/json')
         .expect(400);
 
-      expect(response.body.error).toContain('Cast to ObjectId failed');
+      expect(response.body.message).toContain('Cast to ObjectId failed');
     });
 
     it('debe retornar 404 si usuario no existe', async () => {
@@ -120,9 +132,10 @@ describe('User API Integration Tests', () => {
       
       const response = await request(app)
         .get(`/v1/users/${fakeId}`)
+        .set('Accept', 'application/json')
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.message).toBe('User not found');
     });
   });
 
@@ -138,6 +151,7 @@ describe('User API Integration Tests', () => {
 
       const response = await request(app)
         .post('/v1/users')
+        .set('Accept', 'application/json')
         .send(newUser)
         .expect(201);
 
@@ -154,16 +168,18 @@ describe('User API Integration Tests', () => {
     it('debe validar email requerido (Joi)', async () => {
       const response = await request(app)
         .post('/v1/users')
+        .set('Accept', 'application/json')
         .send({ name: 'Test User', password: 'password123' })
         .expect(400);
 
       // Joi validation error
-      expect(response.body.error).toContain('email');
+      expect(response.body.message).toContain('email');
     });
 
     it('debe validar formato de email (Joi)', async () => {
       const response = await request(app)
         .post('/v1/users')
+        .set('Accept', 'application/json')
         .send({ 
           email: 'invalid-email', 
           name: 'Test', 
@@ -171,22 +187,24 @@ describe('User API Integration Tests', () => {
         })
         .expect(400);
 
-      expect(response.body.error).toContain('valid email');
+      expect(response.body.message).toContain('valid email');
     });
 
     it('debe validar name requerido (Joi)', async () => {
       const response = await request(app)
         .post('/v1/users')
+        .set('Accept', 'application/json')
         .send({ email: 'test@example.com', password: 'password123' })
         .expect(400);
 
-      expect(response.body.error).toContain('name');
+      expect(response.body.message).toContain('name');
     });
 
     it('debe rechazar email duplicado (Mongoose unique)', async () => {
       // Crear primer usuario
       await request(app)
         .post('/v1/users')
+        .set('Accept', 'application/json')
         .send({ 
           email: 'test@example.com', 
           name: 'User 1', 
@@ -196,6 +214,7 @@ describe('User API Integration Tests', () => {
       // Intentar crear segundo usuario con mismo email
       const response = await request(app)
         .post('/v1/users')
+        .set('Accept', 'application/json')
         .send({ 
           email: 'test@example.com', 
           name: 'User 2', 
@@ -203,7 +222,7 @@ describe('User API Integration Tests', () => {
         })
         .expect(500); // Mongoose duplicate key error
 
-      expect(response.body.error).toContain('duplicate');
+      expect(response.body.message).toContain('duplicate');
     });
   });
 
@@ -219,11 +238,13 @@ describe('User API Integration Tests', () => {
       // Eliminar usuario
       await request(app)
         .delete(`/v1/users/${user._id}`)
-        .expect(204); // 204 No Content
+        .set('Accept', 'application/json')
+        .expect(200);
 
       // Verificar que ya no existe
       await request(app)
         .get(`/v1/users/${user._id}`)
+        .set('Accept', 'application/json')
         .expect(404);
     });
 
@@ -232,17 +253,19 @@ describe('User API Integration Tests', () => {
       
       const response = await request(app)
         .delete(`/v1/users/${fakeId}`)
+        .set('Accept', 'application/json')
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.message).toBe('User not found');
     });
 
     it('debe validar ID de MongoDB', async () => {
       const response = await request(app)
         .delete('/v1/users/invalid-id')
+        .set('Accept', 'application/json')
         .expect(400);
 
-      expect(response.body.error).toContain('Cast to ObjectId failed');
+      expect(response.body.message).toContain('Cast to ObjectId failed');
     });
   });
 });

@@ -1,16 +1,14 @@
-import mongoose from 'mongoose';
 import UserModel from '../components/User/model';
 
 /**
  * Limpia todas las colecciones de la base de datos
  */
 export const clearDatabase = async () => {
-  const collections = mongoose.connection.collections;
+  const collections = UserModel.db.collections;
   for (const key in collections) {
     const collection = collections[key];
     await collection.deleteMany({});
   }
-  console.log('Database cleared. Collections:', Object.keys(collections));
 };
 
 /**
