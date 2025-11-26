@@ -60,8 +60,8 @@ describe('User API Integration Tests', () => {
     it('debe retornar todos los usuarios', async () => {
       // Arrange: crear usuarios de prueba en MongoDB
       await seedUsers([
-        { name: 'Alice', email: 'alice@test.com', password: 'password123' },
-        { name: 'Bob', email: 'bob@test.com', password: 'password456' }
+        { email: 'alice@test.com', password: 'password123' },
+        { email: 'bob@test.com', password: 'password456' }
       ]);
 
       // Act: obtener todos los usuarios
@@ -74,14 +74,13 @@ describe('User API Integration Tests', () => {
       expect(response.body).toHaveLength(2);
       expect(response.body[0]).toHaveProperty('_id');
       expect(response.body[0]).toHaveProperty('email');
-      expect(response.body[0]).toHaveProperty('name');
       // ✅ Password NO debe retornarse (select: false en el schema)
       expect(response.body[0]).not.toHaveProperty('password');
     });
 
     it('debe retornar usuarios con estructura correcta de Mongoose', async () => {
       await seedUsers([
-        { name: 'Test User', email: 'test@example.com', password: 'password123' }
+        { email: 'test@example.com', password: 'password123' }
       ]);
 
       const response = await request(app)
@@ -93,7 +92,6 @@ describe('User API Integration Tests', () => {
       expect(response.body[0]).toMatchObject({
         _id: expect.any(String),
         email: 'test@example.com',
-        name: 'Test User',
       });
     });
   });
@@ -104,7 +102,7 @@ describe('User API Integration Tests', () => {
     it('debe retornar usuario específico por ID', async () => {
       // Crear usuario en MongoDB
       const [user] = await seedUsers([
-        { name: 'Test User', email: 'test@example.com', password: 'password123' }
+        { email: 'test@example.com', password: 'password123' }
       ]);
 
       // Obtener por ID
@@ -145,7 +143,6 @@ describe('User API Integration Tests', () => {
     it('debe crear usuario exitosamente', async () => {
       const newUser = {
         email: 'test@example.com',
-        name: 'Test User',
         password: 'MySecurePassword123'
       };
 
@@ -157,7 +154,6 @@ describe('User API Integration Tests', () => {
 
       // Verificar que retorna el usuario creado
       expect(response.body.email).toBe(newUser.email);
-      expect(response.body.name).toBe(newUser.name);
       expect(response.body).toHaveProperty('_id');
       
       // ✅ Password debe estar hasheado (bcrypt)
@@ -169,7 +165,7 @@ describe('User API Integration Tests', () => {
       const response = await request(app)
         .post('/v1/users')
         .set('Accept', 'application/json')
-        .send({ name: 'Test User', password: 'password123' })
+        .send({ password: 'password123' })
         .expect(400);
 
       // Joi validation error
@@ -182,7 +178,6 @@ describe('User API Integration Tests', () => {
         .set('Accept', 'application/json')
         .send({ 
           email: 'invalid-email', 
-          name: 'Test', 
           password: 'password123' 
         })
         .expect(400);
@@ -190,14 +185,14 @@ describe('User API Integration Tests', () => {
       expect(response.body.message).toContain('valid email');
     });
 
-    it('debe validar name requerido (Joi)', async () => {
+    it('debe validar password requerido (Joi)', async () => {
       const response = await request(app)
         .post('/v1/users')
         .set('Accept', 'application/json')
-        .send({ email: 'test@example.com', password: 'password123' })
+        .send({ email: 'test@example.com' })
         .expect(400);
 
-      expect(response.body.message).toContain('name');
+      expect(response.body.message).toContain('password');
     });
 
     it('debe rechazar email duplicado (Mongoose unique)', async () => {
@@ -207,7 +202,6 @@ describe('User API Integration Tests', () => {
         .set('Accept', 'application/json')
         .send({ 
           email: 'test@example.com', 
-          name: 'User 1', 
           password: 'password123' 
         });
 
@@ -217,7 +211,6 @@ describe('User API Integration Tests', () => {
         .set('Accept', 'application/json')
         .send({ 
           email: 'test@example.com', 
-          name: 'User 2', 
           password: 'password456' 
         })
         .expect(500); // Mongoose duplicate key error
@@ -232,7 +225,7 @@ describe('User API Integration Tests', () => {
     it('debe eliminar usuario existente', async () => {
       // Crear usuario
       const [user] = await seedUsers([
-        { name: 'To Delete', email: 'delete@test.com', password: 'password123' }
+        { email: 'delete@test.com', password: 'password123' }
       ]);
 
       // Eliminar usuario
