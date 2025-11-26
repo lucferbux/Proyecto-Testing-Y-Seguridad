@@ -19,6 +19,7 @@ export interface IUserRequest {
  */
 export interface IUserModel extends Document {
   email: string;
+  name: string;
   password: string;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
@@ -40,7 +41,14 @@ const UserSchema = new Schema<IUserModel>(
       unique: true,
       trim: true
     },
-    password: String,
+    name: {
+      type: String,
+      required: true
+    },
+    password: {
+      type: String,
+      select: false
+    },
     passwordResetToken: String,
     passwordResetExpires: Date,
     tokens: Array
