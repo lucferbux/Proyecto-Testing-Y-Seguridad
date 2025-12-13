@@ -217,8 +217,7 @@ describe('ProjectCard', () => {
   // Tests de Interacciones de Usuario
   // ============================================
   describe('Interacciones de usuario', () => {
-    it('debe mostrar menú desplegable al hacer clic en botón kebab', async () => {
-      const user = userEvent.setup();
+    it('debe mostrar menú desplegable al hacer clic en botón kebab', () => {
       mockUseAuth.mockReturnValue({ user: mockUser });
 
       render(
@@ -230,14 +229,13 @@ describe('ProjectCard', () => {
       );
 
       const kebabButton = screen.getByRole('button');
-      await user.click(kebabButton);
+      fireEvent.click(kebabButton);
 
       expect(screen.getByText('Update')).toBeInTheDocument();
       expect(screen.getByText('Delete')).toBeInTheDocument();
     });
 
-    it('debe llamar a updateButton al hacer clic en Update', async () => {
-      const user = userEvent.setup();
+    it('debe llamar a updateButton al hacer clic en Update', () => {
       mockUseAuth.mockReturnValue({ user: mockUser });
 
       render(
@@ -249,17 +247,16 @@ describe('ProjectCard', () => {
       );
 
       const kebabButton = screen.getByRole('button');
-      await user.click(kebabButton);
+      fireEvent.click(kebabButton);
 
       const updateButton = screen.getByText('Update');
-      await user.click(updateButton);
+      fireEvent.click(updateButton);
 
       expect(mockUpdateButton).toHaveBeenCalledTimes(1);
       expect(mockUpdateButton).toHaveBeenCalledWith(expect.any(Object), mockProject);
     });
 
-    it('debe llamar a closeButton al hacer clic en Delete', async () => {
-      const user = userEvent.setup();
+    it('debe llamar a closeButton al hacer clic en Delete', () => {
       mockUseAuth.mockReturnValue({ user: mockUser });
 
       render(
@@ -271,10 +268,10 @@ describe('ProjectCard', () => {
       );
 
       const kebabButton = screen.getByRole('button');
-      await user.click(kebabButton);
+      fireEvent.click(kebabButton);
 
       const deleteButton = screen.getByText('Delete');
-      await user.click(deleteButton);
+      fireEvent.click(deleteButton);
 
       expect(mockCloseButton).toHaveBeenCalledTimes(1);
       expect(mockCloseButton).toHaveBeenCalledWith(expect.any(Object), mockProject._id);
@@ -321,8 +318,7 @@ describe('ProjectCard', () => {
       expect(screen.getByText(projectWithSpecialChars.description)).toBeInTheDocument();
     });
 
-    it('debe pasar string vacío a closeButton cuando project._id es undefined', async () => {
-      const user = userEvent.setup();
+    it('debe pasar string vacío a closeButton cuando project._id es undefined', () => {
       mockUseAuth.mockReturnValue({ user: mockUser });
 
       render(
@@ -334,10 +330,10 @@ describe('ProjectCard', () => {
       );
 
       const kebabButton = screen.getByRole('button');
-      await user.click(kebabButton);
+      fireEvent.click(kebabButton);
 
       const deleteButton = screen.getByText('Delete');
-      await user.click(deleteButton);
+      fireEvent.click(deleteButton);
 
       expect(mockCloseButton).toHaveBeenCalledWith(expect.any(Object), '');
     });
