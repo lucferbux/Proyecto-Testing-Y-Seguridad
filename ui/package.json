@@ -12,7 +12,14 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:verbose": "jest --verbose"
+    "test:verbose": "jest --verbose",
+    "test:auth": "jest auth.test.ts --coverage --collectCoverageFrom=\"src/utils/auth.ts\"",
+    "test:loader": "jest Loader.test.tsx --verbose",
+    "test:projectcard": "jest ProjectCard.test.tsx --verbose",
+    "test:api": "jest http-api-client.test.ts --verbose",
+    "test:utils": "jest --testPathPattern=\"utils/__tests__\"",
+    "test:components": "jest --testPathPattern=\"components\"",
+    "test:ci": "jest --ci --coverage --forceExit"
   },
   "dependencies": {
     "i18next": "^19.9.2",

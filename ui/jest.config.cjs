@@ -38,6 +38,19 @@ module.exports = {
     '!src/**/*.stories.tsx',   // Storybook (si lo tienes)
   ],
   
+  // Coverage reporters
+  coverageReporters: ['text', 'text-summary', 'html', 'json', 'lcov'],
+  
+  // Coverage thresholds for specific modules
+  coverageThreshold: {
+    './src/utils/auth.ts': {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  },
+  
   // Ignorar
   testPathIgnorePatterns: ['/node_modules/', '/dist/', '/build/'],
   
