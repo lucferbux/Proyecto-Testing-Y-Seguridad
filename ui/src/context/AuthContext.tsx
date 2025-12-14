@@ -17,13 +17,7 @@ type AuthContextType = {
   loadUser: () => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  user: undefined,
-  isLoading: false,
-  login: () => Promise.resolve(),
-  logout: () => Promise.resolve(),
-  loadUser: () => {}
-});
+const AuthContext = createContext<AuthContextType>(null as unknown as AuthContextType);
 
 interface Props {
   children: ReactNode;

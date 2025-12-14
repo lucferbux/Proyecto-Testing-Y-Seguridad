@@ -6,6 +6,7 @@ import Login from './routes/Login';
 import Dashboard from './routes/Dashboard';
 import Admin from './routes/Admin';
 import PrivateRoute from './routes/PrivateRoute';
+import { LoginForm } from './LoginForm';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/formulario" element={<LoginForm />} />
           <Route
             path="admin"
             element={
