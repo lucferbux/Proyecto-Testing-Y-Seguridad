@@ -1,44 +1,38 @@
+// api/src/components/Projects/service.ts
 import Joi from 'joi';
 import ProjectModel, { IProjectsModel } from './model';
 import ProjectsValidation from './validation';
 import { IProjectsService } from './interface';
 import { Types } from 'mongoose';
+import { HttpError } from '@/config/error';
 
 /**
  * @export
  * @implements {IProjectsModelService}
  */
 const ProjectsService: IProjectsService = {
-  /**
-   * @returns {Promise < IProjectsModel[] >}
-   * @memberof ProjectsService
-   */
   async findAll(): Promise<IProjectsModel[]> {
     try {
-      return await ProjectModel.find({});
-    } catch (error) {
-      throw new Error(error.message);
+      return await ProjectModel.find(
+        {},
+        {
+          password: 0
+        }
+      );
+    } catch (error: any) {
+      throw new HttpError(500, error.message);
     }
   },
 
-  /**
-   * @param {string} id
-   * @returns {Promise < IProjectsModel >}
-   * @memberof ProjectsService
-   */
   async findOne(id: string): Promise<IProjectsModel> {
     try {
-      const validate: Joi.ValidationResult<{
-        id: string;
-      }> = ProjectsValidation.getProject({
-        id
-      });
+      const validate: Joi.ValidationResult<{ id: string }> = ProjectsValidation.getProject({ id });
 
       if (validate.error) {
-        throw new Error(validate.error.message);
+        throw new HttpError(400, validate.error.message);
       }
 
-      return await ProjectModel.findOne(
+      const project = await ProjectModel.findOne(
         {
           _id: new Types.ObjectId(id)
         },
@@ -46,56 +40,75 @@ const ProjectsService: IProjectsService = {
           password: 0
         }
       );
-    } catch (error) {
-      throw new Error(error.message);
+
+      if (!project) {
+        throw new HttpError(404, 'Project not found');
+      }
+
+      return project;
+    } catch (error: any) {
+      if (
+        error?.name === 'BSONTypeError' ||
+        String(error?.message || '').includes('Cast to ObjectId failed')
+      ) {
+        throw new HttpError(400, 'Cast to ObjectId failed');
+      }
+      if (error instanceof HttpError) {
+        throw error;
+      }
+      throw new HttpError(500, error.message);
     }
   },
 
-  /**
-   * @param {IProjectsModel} project
-   * @returns {Promise < IProjectsModel >}
-   * @memberof ProjectsService
-   */
   async insert(body: IProjectsModel): Promise<IProjectsModel> {
     try {
       const validate: Joi.ValidationResult<IProjectsModel> = ProjectsValidation.createProject(body);
 
       if (validate.error) {
-        throw new Error(validate.error.message);
+        throw new HttpError(400, validate.error.message);
       }
 
       const project: IProjectsModel = await ProjectModel.create(body);
 
       return project;
-    } catch (error) {
-      throw new Error(error.message);
+    } catch (error: any) {
+      if (error instanceof HttpError) {
+        throw error;
+      }
+      throw new HttpError(500, error.message);
     }
   },
 
-  /**
-   * @param {string} id
-   * @returns {Promise < IProjectsModel >}
-   * @memberof ProjectsService
-   */
   async remove(id: string): Promise<IProjectsModel> {
     try {
-      const validate: Joi.ValidationResult<{
-        id: string;
-      }> = ProjectsValidation.removeProject({
+      const validate: Joi.ValidationResult<{ id: string }> = ProjectsValidation.removeProject({
         id
       });
 
       if (validate.error) {
-        throw new Error(validate.error.message);
+        throw new HttpError(400, validate.error.message);
       }
 
       const project: IProjectsModel = await ProjectModel.findOneAndRemove({
         _id: new Types.ObjectId(id)
       });
 
+      if (!project) {
+        throw new HttpError(404, 'Project not found');
+      }
+
       return project;
-    } catch (error) {
-      throw new Error(error.message);
+    } catch (error: any) {
+      if (
+        error?.name === 'BSONTypeError' ||
+        String(error?.message || '').includes('Cast to ObjectId failed')
+      ) {
+        throw new HttpError(400, 'Cast to ObjectId failed');
+      }
+      if (error instanceof HttpError) {
+        throw error;
+      }
+      throw new HttpError(500, error.message);
     }
   }
 };

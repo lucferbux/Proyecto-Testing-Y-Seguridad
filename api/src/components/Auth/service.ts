@@ -55,9 +55,7 @@ const AuthService: IAuthService = {
         throw new Error(validate.error.message);
       }
 
-      const user: IUserModel = await UserModel.findOne({
-        email: body.email
-      });
+      const user: IUserModel = await UserModel.findOne({ email: body.email }).select('+password');
 
       const isMatched: boolean = user && (await user.comparePassword(body.password));
 
