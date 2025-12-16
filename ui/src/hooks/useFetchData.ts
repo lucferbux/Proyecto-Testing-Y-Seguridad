@@ -8,14 +8,19 @@ type FetchDataResult<T> = {
   reload: () => void;
 };
 
-export default function useFetchData<T>(fetchFunction: () => Promise<T>): FetchDataResult<T> {
-  const [data, setData] = useState<T | null>(null);
+export default function useFetchData<T>(
+  fetchFunction: () => Promise<T>,
+  initialValue: T | null = null
+): FetchDataResult<T> {
+  const [data, setData] = useState<T | null>(initialValue);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | GenericError | null>(null);
   const [reloadCount, setReloadCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
       try {
         const result = await fetchFunction();
         setData(result);
