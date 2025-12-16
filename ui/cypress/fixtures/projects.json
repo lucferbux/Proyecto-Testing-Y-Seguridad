@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "507f1f77bcf86cd799439012",
+    "title": "Taller Testing & Security",
+    "description": "Proyecto educativo sobre testing y seguridad",
+    "version": "1.0.0",
+    "link": "https://github.com/lucferbux/Taller-Testing-Security",
+    "tag": "education",
+    "timestamp": 1700000000000
+  },
+  {
+    "_id": "507f1f77bcf86cd799439013",
+    "title": "React Dashboard",
+    "description": "Dashboard interactivo con React",
+    "version": "2.0.0",
+    "link": "https://github.com/lucferbux/react-dashboard",
+    "tag": "react",
+    "timestamp": 1699000000000
+  }
+]
