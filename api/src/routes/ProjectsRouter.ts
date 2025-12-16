@@ -9,6 +9,8 @@ const router: Router = Router();
 
 router.get('/', ProjectsComponent.findAll);
 
+router.get('/:id', ProjectsComponent.findOne);
+
 router.post('/', jwtConfig.isAuthenticated, ProjectsComponent.create);
 
 router.put('/', jwtConfig.isAuthenticated, ProjectsComponent.update);
