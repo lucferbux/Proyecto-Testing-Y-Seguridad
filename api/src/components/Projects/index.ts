@@ -29,11 +29,26 @@ export async function findAll(req: Request, res: Response, next: NextFunction): 
  */
 export async function findOne(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const aboutMe: IProjectsModel = await ProjectsService.findOne(req.params.id);
+    const project: IProjectsModel | null = await ProjectsService.findOne(req.params.id);
 
-    res.status(200).json(aboutMe);
+    if (!project) {
+      res.status(404).json({ message: 'Project not found' });
+      return;
+    }
+
+    res.status(200).json(project);
   } catch (error) {
-    next(new HttpError(error.message.status, error.message));
+    // Handle Joi validation errors (invalid ObjectId format)
+    if (error.message && (
+      error.message.includes('must be a valid') ||
+      error.message.includes('fails to match') ||
+      error.message.includes('12 bytes') ||
+      error.message.includes('24 hex characters')
+    )) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+    next(new HttpError(error.message?.status || 500, error.message));
   }
 }
 
@@ -46,11 +61,16 @@ export async function findOne(req: Request, res: Response, next: NextFunction): 
  */
 export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const aboutMe: IProjectsModel = await ProjectsService.insert(req.body);
+    const project: IProjectsModel = await ProjectsService.insert(req.body);
 
-    res.status(201).json(aboutMe);
+    res.status(201).json(project);
   } catch (error) {
-    next(new HttpError(error.message.status, error.message));
+    // Handle Joi validation errors
+    if (error.message && (error.message.includes('is required') || error.message.includes('must be'))) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+    next(new HttpError(error.message?.status || 500, error.message));
   }
 }
 

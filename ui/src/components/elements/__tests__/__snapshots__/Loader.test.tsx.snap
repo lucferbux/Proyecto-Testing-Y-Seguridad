@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Loader Snapshots debe coincidir con el snapshot para mensaje corto 1`] = `
+<div>
+  <div
+    class="sc-kFCsca gtELaK"
+  >
+    <div
+      class="sc-irLwvL fOaKLZ"
+    >
+      <img
+        alt="..."
+        class="sc-csKIKE gXOfMV"
+        src="test-file-stub"
+      />
+      <p
+        class="sc-iBdmCd sc-eTNep hHAzOJ"
+      >
+        ...
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Loader Snapshots debe coincidir con el snapshot para mensaje estándar 1`] = `
+<div>
+  <div
+    class="sc-kFCsca gtELaK"
+  >
+    <div
+      class="sc-irLwvL fOaKLZ"
+    >
+      <img
+        alt="Cargando..."
+        class="sc-csKIKE gXOfMV"
+        src="test-file-stub"
+      />
+      <p
+        class="sc-iBdmCd sc-eTNep hHAzOJ"
+      >
+        Cargando...
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Loader Snapshots debe coincidir con el snapshot para mensaje largo 1`] = `
+<div>
+  <div
+    class="sc-kFCsca gtELaK"
+  >
+    <div
+      class="sc-irLwvL fOaKLZ"
+    >
+      <img
+        alt="Por favor espere mientras cargamos todos los datos necesarios para mostrar la información"
+        class="sc-csKIKE gXOfMV"
+        src="test-file-stub"
+      />
+      <p
+        class="sc-iBdmCd sc-eTNep hHAzOJ"
+      >
+        Por favor espere mientras cargamos todos los datos necesarios para mostrar la información
+      </p>
+    </div>
+  </div>
+</div>
+`;

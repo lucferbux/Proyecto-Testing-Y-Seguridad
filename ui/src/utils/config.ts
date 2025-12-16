@@ -1,5 +1,5 @@
-const baseUrl = import.meta.env.VITE_BASE_URI;
-let apiBaseUrl = import.meta.env.VITE_API_URI;
+const baseUrl = process.env.VITE_BASE_URI;
+let apiBaseUrl = process.env.VITE_API_URI;
 
 if (baseUrl) {
   apiBaseUrl = baseUrl + '/_/api';
